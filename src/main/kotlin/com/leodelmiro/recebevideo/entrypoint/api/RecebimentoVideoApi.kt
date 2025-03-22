@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,6 +34,9 @@ class RecebimentoVideoApi(@field:Autowired private val enviaVideoParaProcessamen
     ): ResponseEntity<Any> {
         if (arquivo.isEmpty) {
             return ResponseEntity.badRequest().body(ErrorResponse(HttpStatus.BAD_REQUEST.reasonPhrase, "Arquivo Vazio"))
+        }
+        if (arquivo.contentType?.contains("video") != true) {
+            return ResponseEntity.badRequest().body(ErrorResponse(HttpStatus.BAD_REQUEST.reasonPhrase, "Content Type Inválido"))
         }
 
         VideoController.enviar(arquivo, nome, descricao, token, enviaVideoParaProcessamentoUseCase)

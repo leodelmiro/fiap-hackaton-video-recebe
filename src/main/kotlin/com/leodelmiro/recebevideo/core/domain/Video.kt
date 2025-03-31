@@ -2,7 +2,7 @@ package com.leodelmiro.recebevideo.core.domain
 
 import org.springframework.web.multipart.MultipartFile
 
-class Video(
+data class Video(
     val arquivo: MultipartFile,
     val nome: String,
     val descricao: String,

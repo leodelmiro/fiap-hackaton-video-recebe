@@ -1,0 +1,58 @@
+name: 3 - [MAIN] Apply, Build & Deploy
+
+on:
+  pull_request:
+    types:
+      - "closed"
+    branches:
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30.6'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Update kube config
+        run: aws eks update-kubeconfig --region us-east-1 --name tech-hackathon-fiap
+      - name: Replace placeholders in ConfigMap
+        env:
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          SNS_ARN: ${{ secrets.SNS_ARN }}
+          ENVIO_URL: ${{ secrets.ENVIO_URL }}
+        run: |
+          sed -e "s|{{AWS_ACCESS_KEY_ID}}|$ACCESS_KEY|g" \
+              -e "s|{{AWS_SECRET_ACCESS_KEY}}|$SECRET_KEY|g" \
+              -e "s|{{AWS_SESSION_TOKEN}}|$SESSION_TOKEN|g" \
+              -e "s|{{ENVIO_URL}}|$ENVIO_URL|g" \
+              -e "s|{{SNS_ARN}}|$SNS_ARN|g" \
+              ./deployment/k8s/configmap.yml > ./deployment/k8s/configmap-withsecrets.yml
+      - name: Deploy to EKS
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: tech-hackathon-fiap-recebe-video
+          IMAGE_TAG: latest
+        run: |
+          sed -i.bak "s|DOCKER_IMAGE|$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" deployment/k8s/deployment.yml && \
+          kubectl apply -f ./deployment/k8s/namespace.yml 
+          kubectl apply -f ./deployment/k8s/configmap-withsecrets.yml
+          kubectl apply -f ./deployment/k8s/serviceaccount.yml
+          kubectl apply -f ./deployment/k8s/deployment.yml
+          kubectl apply -f ./deployment/k8s/service.yml
+          kubectl apply -f ./deployment/k8s/hpa.yml
+          kubectl apply -f ./deployment/k8s/ingress.yml

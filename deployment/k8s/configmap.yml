@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recebe-video-configmap
+  namespace: hackathon-fiap
+data:
+  s3_url: "https://s3.us-east-1.amazonaws.com"
+  sns_url: "https://sns.us-east-1.amazonaws.com"
+  novo_video_recebido_sns: "{{SNS_ARN}}"
+  envios_url: "{{ENVIO_URL}}"
+  aws_access_key: "{{AWS_ACCESS_KEY_ID}}"
+  aws_secret_key: "{{AWS_SECRET_ACCESS_KEY}}"
+  aws_session_token: "{{AWS_SESSION_TOKEN}}"

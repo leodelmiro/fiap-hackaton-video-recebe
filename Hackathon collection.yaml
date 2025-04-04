@@ -1,0 +1,251 @@
+type: collection.insomnia.rest/5.0
+name: Hackaton Video
+meta:
+  id: wrk_6ada653c503a4e5b97e0398735d6ad1e
+  created: 1741799184371
+  modified: 1741799184371
+collection:
+  - name: Usuário
+    meta:
+      id: fld_3c86682829684204971e25598259a6d9
+      created: 1742152194522
+      modified: 1742152194522
+      sortKey: -1742152194522
+    children:
+      - url: http://localhost:8080/api/v1/usuarios
+        name: Cria usuário
+        meta:
+          id: req_67fa6bf957414b91aa23866d3830b57c
+          created: 1741799189699
+          modified: 1742153824800
+          isPrivate: false
+          sortKey: -1742152206873
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"usuario": "leo123",
+            	"senha": "Senha!12345",
+            	"email": "leodelmiroms@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/v1/usuarios/leo123
+        name: Get Email Usuário
+        meta:
+          id: req_b60963681458492d8330a7933c0cafe6
+          created: 1742153854033
+          modified: 1742153863252
+          isPrivate: false
+          sortKey: -1742152206773
+        method: GET
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"usuario": "leo123",
+            	"senha": "Senha!12345",
+            	"email": "leodelmiroms@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/v1/usuarios/entrar
+        name: Login Usuário
+        meta:
+          id: req_6c47489bf3dd45a3a5be7bf2f4ec74d1
+          created: 1742153873541
+          modified: 1742153882952
+          isPrivate: false
+          sortKey: -1742152206723
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"usuario": "leo123",
+            	"senha": "Senha!12345",
+            	"email": "leodelmiroms@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Videos
+    meta:
+      id: fld_e6e95bd1065d4868b1f667b3733d0e19
+      created: 1742230227305
+      modified: 1742230495225
+      sortKey: -1742152194622
+    children:
+      - url: http://localhost:8081/api/v1/videos
+        name: Enviar Video
+        meta:
+          id: req_c875b64f96d04488832559e75aaff6d2
+          created: 1742230251577
+          modified: 1743111174962
+          isPrivate: false
+          sortKey: -1742230257330
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - id: pair_5f8aa5c0fbf543a497ace580c149e135
+              name: arquivo
+              disabled: false
+              type: file
+              fileName: D:\Leo\Projetos\fiap-hackaton\test.mp4
+            - id: pair_cad2093ae73c4f99ad1c24d63470e8e0
+              name: nome
+              value: test6
+              disabled: false
+            - id: pair_26257146889246c4a8f5bd85663670f5
+              name: descricao
+              value: testando
+              disabled: false
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_6c47489bf3dd45a3a5be7bf2f4ec74d1',
+            'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'no-history', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8083/api/v1/envios/verifica
+        name: Verifica Envio Por Nome
+        meta:
+          id: req_37022c198d5b4989aa089483fb384607
+          created: 1743109271129
+          modified: 1743444921011
+          isPrivate: false
+          sortKey: -1742191232101.5
+        method: GET
+        parameters:
+          - id: pair_28b9393de02c4cf48d8eb20b87d4a935
+            name: nome
+            value: test
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_6c47489bf3dd45a3a5be7bf2f4ec74d1',
+            'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'no-history', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8083/api/v1/envios
+        name: Lista envios
+        meta:
+          id: req_ca1385abe1b24b2290c3e168b1924361
+          created: 1743444903779
+          modified: 1743445182847
+          isPrivate: false
+          sortKey: -1742171719487.25
+        method: GET
+        parameters:
+          - id: pair_28b9393de02c4cf48d8eb20b87d4a935
+            name: status
+            value: "0"
+            disabled: true
+        headers:
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_6c47489bf3dd45a3a5be7bf2f4ec74d1',
+            'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'no-history', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8083/api/v1/envios/1
+        name: Consulta Envio Por Id
+        meta:
+          id: req_4587f37586d14c40a84728a4400ae7d2
+          created: 1743445144862
+          modified: 1743445157483
+          isPrivate: false
+          sortKey: -1742181475794.375
+        method: GET
+        parameters:
+          - id: pair_917fca22db374d2595ff81ed5e118250
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{% response 'body', 'req_6c47489bf3dd45a3a5be7bf2f4ec74d1',
+            'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'no-history', 60 %}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_f08d619f987b74f91514ddf198edc6a2f7901818
+    created: 1741799184373
+    modified: 1741799184373
+environments:
+  name: Base Environment
+  meta:
+    id: env_f08d619f987b74f91514ddf198edc6a2f7901818
+    created: 1741799184372
+    modified: 1741799184372
+    isPrivate: false

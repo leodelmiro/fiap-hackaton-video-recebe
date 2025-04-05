@@ -1,0 +1,41 @@
+spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY:test}
+        secret-key: ${AWS_SECRET_KEY:test}
+        session: ${AWS_SESSION_TOKEN:test}
+      region:
+        static: ${AWS_REGION:us-east-1}
+      s3:
+        endpoint: ${S3_URL:http://s3.localhost.localstack.cloud:4567/}
+      sns:
+        endpoint: ${SNS_URL:http://localhost:4567}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+amazon:
+  sns:
+    novo-video-recebido: ${SNS_ARN:arn:aws:sns:us-east-1:000000000000:novo-video-recebido}
+  s3:
+    bucket: hackaton-tech-challenge-videos-ld
+
+external-apis:
+  envios:
+    url: ${ENVIOS_URL:http://localhost:8083/api/v1}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  server:
+    servlet:
+      context-path: /actuator

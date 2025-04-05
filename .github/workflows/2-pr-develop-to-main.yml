@@ -34,7 +34,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=leodelmiro_fiap-hackaton-video-recebe -Dsonar.token=$SONAR_TOKEN -Pcoverage -Dsonar.qualitygate.wait=true
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=leodelmiro -Dsonar.projectKey=leodelmiro_fiap-hackaton-video-recebe -Dsonar.token=$SONAR_TOKEN -Pcoverage -Dsonar.qualitygate.wait=true
       - name: Compile
         run: mvn -B clean compile --file ./pom.xml
       - name: Build a package

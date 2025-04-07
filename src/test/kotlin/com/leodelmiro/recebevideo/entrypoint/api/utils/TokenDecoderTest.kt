@@ -13,7 +13,7 @@ class TokenDecoderTest {
         val username = "testuser"
         val algorithm = Algorithm.HMAC256("secret")
         val token = "Bearer " + JWT.create()
-            .withClaim("username", username)
+            .withClaim("cognito:username", username)
             .sign(algorithm)
 
         val decodedUsername = TokenDecoder.decodeUsername(token)

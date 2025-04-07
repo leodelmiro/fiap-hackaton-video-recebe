@@ -49,7 +49,6 @@ Este repositório é referente ao microserviço responsável pelo recebimento do
     - Dataprovider: Interfaces para o dados do mundo externo
 - Dataprovider: Implmentações para o mundo externo
     - Gateway: Implementações das Interfaces de acesso do Core.
-    - Repository: Database
 - Config: Configurações do Projeto
 
 ## Rodando o Projeto Local

@@ -31,7 +31,6 @@ Este repositório é referente ao microserviço responsável pelo recebimento do
 - Kotlin
 - Spring
 - Swagger
-- Postgres
 - Docker
 - Docker Compose
 - AWS

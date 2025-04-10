@@ -24,20 +24,27 @@ class UploadVideoGatewayImpl(
     override suspend fun executar(video: Video) {
         val key = "videos/${video.nome}"
 
-        val inputStream = video.arquivo.inputStream.buffered()
-        val tamanho = video.arquivo.size
-        val tipo = video.arquivo.contentType ?: "video/mp4"
+        video.arquivo.inputStream.buffered().use { inputStream ->
+            val tamanho = video.arquivo.size
+            val tipo = when (video.arquivo.originalFilename?.substringAfterLast('.', "")) {
+                "mp4" -> "video/mp4"
+                "mov" -> "video/quicktime"
+                "avi" -> "video/x-msvideo"
+                "webm" -> "video/webm"
+                else -> "application/octet-stream"
+            }
 
-        val objectRequest = PutObjectRequest.builder()
-            .key(key)
-            .bucket(bucketName)
-            .contentLength(tamanho)
-            .contentType(tipo)
-            .build()
+            val objectRequest = PutObjectRequest.builder()
+                .key(key)
+                .bucket(bucketName)
+                .contentLength(tamanho)
+                .contentType(tipo)
+                .build()
 
-        val requestBody = RequestBody.fromInputStream(inputStream, tamanho)
+            val requestBody = RequestBody.fromInputStream(inputStream, tamanho)
 
-        amazonS3Client.putObject(objectRequest, requestBody)
+            amazonS3Client.putObject(objectRequest, requestBody)
+        }
 
         publicaVideoProcessadoGateway.executar(video, key)
     }

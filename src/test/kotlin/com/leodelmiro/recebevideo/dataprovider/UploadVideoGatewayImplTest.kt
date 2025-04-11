@@ -5,11 +5,10 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.services.s3.model.*
 import utils.criaVideo
 
 class UploadVideoGatewayImplTest {
@@ -28,16 +27,24 @@ class UploadVideoGatewayImplTest {
         val video = criaVideo()
         val key = "videos/${video.nome}"
 
-        uploadVideoGateway.executar(video)
+        val uploadId = "12345"
 
-        val expectedPutObjectRequest = PutObjectRequest.builder()
-            .key(key)
+        val uploadRequest = CreateMultipartUploadRequest.builder()
             .bucket(bucketName)
-            .contentLength(video.arquivo.size)
+            .key(key)
             .contentType(video.arquivo.contentType)
             .build()
 
-        verify(amazonS3Client).putObject(eq(expectedPutObjectRequest), any<RequestBody>())
+        `when`(amazonS3Client.createMultipartUpload(uploadRequest)).thenReturn(
+            CreateMultipartUploadResponse.builder().uploadId(uploadId).build()
+        )
+
+        `when`(amazonS3Client.uploadPart(any(UploadPartRequest::class.java), any(RequestBody::class.java))).thenReturn(
+            UploadPartResponse.builder().eTag("etag123").build()
+        )
+
+        uploadVideoGateway.executar(video)
+
         verify(publicaVideoProcessadoGateway).executar(video, key)
     }
 }

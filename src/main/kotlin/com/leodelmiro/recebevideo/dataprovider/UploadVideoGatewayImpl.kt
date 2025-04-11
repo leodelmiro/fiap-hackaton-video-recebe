@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.PutObjectRequest
-import java.time.LocalDateTime
+import software.amazon.awssdk.services.s3.model.*
+import java.util.*
 
 @Component
 class UploadVideoGatewayImpl(
@@ -21,25 +21,77 @@ class UploadVideoGatewayImpl(
     override suspend fun executar(video: Video) {
         val key = "videos/${video.nome}"
         val file = video.arquivo
+        val fileBytes = file.inputStream.readBytes()
+        val partSize = 5 * 1024 * 1024
 
-        val fileBytes = file.bytes
-        val fileExtension = file.originalFilename?.substringAfterLast('.', "")?.lowercase() ?: "mp4"
-        val contentType = when (fileExtension) {
-            "mp4" -> "video/mp4"
-            "mov" -> "video/quicktime"
-            "avi" -> "video/x-msvideo"
-            "webm" -> "video/webm"
-            else -> "application/octet-stream"
-        }
+        val contentType = file.contentType ?: "application/octet-stream"
 
-        val objectRequest = PutObjectRequest.builder()
-            .key(key)
+        val createRequest = CreateMultipartUploadRequest.builder()
             .bucket(bucketName)
-            .contentLength(fileBytes.size.toLong())
+            .key(key)
             .contentType(contentType)
             .build()
+        val createResponse = amazonS3Client.createMultipartUpload(createRequest)
+        val uploadId = createResponse.uploadId()
 
-        amazonS3Client.putObject(objectRequest, RequestBody.fromBytes(fileBytes))
-        publicaVideoProcessadoGateway.executar(video, key)
+        val completedParts = mutableListOf<CompletedPart>()
+
+        try {
+            var partNumber = 1
+            var offset = 0
+
+            while (offset < fileBytes.size) {
+                val end = minOf(offset + partSize, fileBytes.size)
+                val partBytes = fileBytes.copyOfRange(offset, end)
+
+                val uploadPartRequest = UploadPartRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .uploadId(uploadId)
+                    .partNumber(partNumber)
+                    .contentLength(partBytes.size.toLong())
+                    .build()
+
+                val uploadPartResponse = amazonS3Client.uploadPart(
+                    uploadPartRequest,
+                    RequestBody.fromBytes(partBytes)
+                )
+
+                completedParts.add(
+                    CompletedPart.builder()
+                        .partNumber(partNumber)
+                        .eTag(uploadPartResponse.eTag())
+                        .build()
+                )
+
+                offset += partSize
+                partNumber++
+            }
+
+            val completeRequest = CompleteMultipartUploadRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .uploadId(uploadId)
+                .multipartUpload(
+                    CompletedMultipartUpload.builder()
+                        .parts(completedParts)
+                        .build()
+                )
+                .build()
+
+            amazonS3Client.completeMultipartUpload(completeRequest)
+
+            publicaVideoProcessadoGateway.executar(video, key)
+
+        } catch (ex: Exception) {
+            amazonS3Client.abortMultipartUpload(
+                AbortMultipartUploadRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .uploadId(uploadId)
+                    .build()
+            )
+            throw ex
+        }
     }
 }

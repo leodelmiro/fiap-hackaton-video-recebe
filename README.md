@@ -29,7 +29,7 @@ Este repositório é referente ao microserviço responsável pelo recebimento do
 ## Tecnologias Utilizadas
 
 - Kotlin
-- Spring
+- Spring 3
 - Swagger
 - Docker
 - Docker Compose
